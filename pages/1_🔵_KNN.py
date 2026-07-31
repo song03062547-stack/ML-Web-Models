@@ -12,29 +12,13 @@ st.set_page_config(page_title="KNN Model", page_icon="🔵", layout="wide")
 
 # 2. Sidebar ข้อมูลผู้พัฒนา
 with st.sidebar:
-    # ✅ ใช้โค้ดชุดนี้แทน จะช่วยสแกนหาโฟลเดอร์ assets ให้เจอชัวร์ๆ
-    from pathlib import Path
-    
     profile_image_path = None
-    paths_to_try = [
-        Path("assets/profile.jpg"),
-        Path("assets/profile.png"),
-        Path("../assets/profile.jpg"),
-        Path("../assets/profile.png"),
-    ]
-    if "__file__" in locals():
-        paths_to_try.extend([
-            Path(__file__).parent / "assets/profile.jpg",
-            Path(__file__).parent / "assets/profile.png",
-            Path(__file__).parent.parent / "assets/profile.jpg",
-            Path(__file__).parent.parent / "assets/profile.png",
-        ])
-
-    for p in paths_to_try:
-        if p.exists():
-            profile_image_path = str(p)
+    # เช็คทั้งแบบปกติและแบบถอยหลังกลับไป 1 ชั้นเพื่อหาโฟลเดอร์ assets
+    for path_to_check in ["assets/profile.jpg", "../assets/profile.jpg", "assets/profile.png", "../assets/profile.png"]:
+        if os.path.exists(path_to_check):
+            profile_image_path = path_to_check
             break
-
+            
     if profile_image_path:
         st.image(profile_image_path, width=130)
     else:
