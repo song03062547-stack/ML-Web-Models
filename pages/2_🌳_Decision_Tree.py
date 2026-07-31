@@ -4,6 +4,7 @@ Wine Classifier Web App - Streamlit (Decision Tree)
 """
 
 import os
+from pathlib import Path
 import joblib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -121,16 +122,20 @@ st.markdown(
 # ===== 4. โหลดโมเดล =====
 @st.cache_resource
 def load_model():
-    """โหลดโมเดลและ scaler จากไฟล์"""
+    """โหลดโมเดลและ scaler จากไฟล์ในโฟลเดอร์ decision_tree"""
     try:
-        # แก้ไข Path ชี้ไปยังโฟลเดอร์ model_files/
-        model = joblib.load("model_files/dt_model.pkl")
-        scaler = joblib.load("model_files/scaler.pkl")
-        features = joblib.load("model_files/feature_names.pkl")
+        # แก้ไข Path ให้ชี้ไปที่โฟลเดอร์ย่อย model_files/decision_tree/
+        model_path = Path("model_files/decision_tree/dt_model.pkl")
+        scaler_path = Path("model_files/decision_tree/scaler.pkl")
+        features_path = Path("model_files/decision_tree/feature_names.pkl")
+
+        model = joblib.load(model_path)
+        scaler = joblib.load(scaler_path)
+        features = joblib.load(features_path)
         return model, scaler, features
-    except FileNotFoundError:
+    except (FileNotFoundError, Exception):
         st.warning(
-            "⚠️ ไม่พบไฟล์โมเดลในโฟลเดอร์ 'model_files/' (กำลังใช้ข้อมูลตัวอย่างเพื่อแสดงผล UI)"
+            "⚠️ ไม่พบไฟล์โมเดลในโฟลเดอร์ 'model_files/decision_tree/' (กำลังใช้ข้อมูลตัวอย่างเพื่อแสดงผล UI)"
         )
         default_features = [
             "alcohol",
@@ -173,59 +178,61 @@ st.markdown(
 # ===== 6. Input Form =====
 col1, col2 = st.columns([2, 1])
 
+input_data = {}
+
 with col1:
     st.markdown("### 🔬 ป้อนข้อมูลคุณสมบัติทางเคมี")
 
-    input_data = {}
+    # ครอบด้วย st.form เพื่อให้การกดปุ่มทำงานได้แน่นอน ไม่หลุด state
+    with st.form("dt_wine_form"):
+        half = len(features) // 2 + (1 if len(features) % 2 != 0 else 0)
+        left_features = features[:half]
+        right_features = features[half:]
 
-    half = len(features) // 2 + (1 if len(features) % 2 != 0 else 0)
-    left_features = features[:half]
-    right_features = features[half:]
+        col_left, col_right = st.columns(2)
 
-    col_left, col_right = st.columns(2)
+        feature_ranges = {
+            "alcohol": (10.0, 15.0, 12.5),
+            "malic_acid": (0.5, 5.0, 2.5),
+            "ash": (1.3, 3.5, 2.3),
+            "alcalinity_of_ash": (10.0, 30.0, 19.0),
+            "magnesium": (70.0, 160.0, 100.0),
+            "total_phenols": (0.8, 4.0, 2.3),
+            "flavanoids": (0.2, 5.0, 2.0),
+            "nonflavanoid_phenols": (0.1, 1.0, 0.4),
+            "proanthocyanins": (0.4, 4.0, 1.6),
+            "color_intensity": (1.5, 17.0, 5.0),
+            "hue": (0.3, 1.7, 0.95),
+            "od280/od315_of_diluted_wines": (1.2, 4.0, 2.6),
+            "proline": (250.0, 1700.0, 750.0),
+        }
 
-    feature_ranges = {
-        "alcohol": (10.0, 15.0, 12.5),
-        "malic_acid": (0.5, 5.0, 2.5),
-        "ash": (1.3, 3.5, 2.3),
-        "alcalinity_of_ash": (10.0, 30.0, 19.0),
-        "magnesium": (70.0, 160.0, 100.0),
-        "total_phenols": (0.8, 4.0, 2.3),
-        "flavanoids": (0.2, 5.0, 2.0),
-        "nonflavanoid_phenols": (0.1, 1.0, 0.4),
-        "proanthocyanins": (0.4, 4.0, 1.6),
-        "color_intensity": (1.5, 17.0, 5.0),
-        "hue": (0.3, 1.7, 0.95),
-        "od280/od315_of_diluted_wines": (1.2, 4.0, 2.6),
-        "proline": (250.0, 1700.0, 750.0),
-    }
+        with col_left:
+            for feat in left_features:
+                min_v, max_v, default = feature_ranges.get(feat, (0.0, 10.0, 5.0))
+                input_data[feat] = st.number_input(
+                    feat.replace("_", " ").title(),
+                    min_value=float(min_v),
+                    max_value=float(max_v),
+                    value=float(default),
+                    step=0.1,
+                    key=f"in_{feat}",
+                )
 
-    with col_left:
-        for feat in left_features:
-            min_v, max_v, default = feature_ranges.get(feat, (0.0, 10.0, 5.0))
-            input_data[feat] = st.number_input(
-                feat.replace("_", " ").title(),
-                min_value=float(min_v),
-                max_value=float(max_v),
-                value=float(default),
-                step=0.1,
-                key=f"in_{feat}",
-            )
+        with col_right:
+            for feat in right_features:
+                min_v, max_v, default = feature_ranges.get(feat, (0.0, 10.0, 5.0))
+                input_data[feat] = st.number_input(
+                    feat.replace("_", " ").title(),
+                    min_value=float(min_v),
+                    max_value=float(max_v),
+                    value=float(default),
+                    step=0.1,
+                    key=f"in_{feat}",
+                )
 
-    with col_right:
-        for feat in right_features:
-            min_v, max_v, default = feature_ranges.get(feat, (0.0, 10.0, 5.0))
-            input_data[feat] = st.number_input(
-                feat.replace("_", " ").title(),
-                min_value=float(min_v),
-                max_value=float(max_v),
-                value=float(default),
-                step=0.1,
-                key=f"in_{feat}",
-            )
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    predict_button = st.button("🔮 ทำนายผล", use_container_width=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+        predict_button = st.form_submit_button("🔮 ทำนายผล", use_container_width=True)
 
 with col2:
     st.markdown("### 📋 ข้อมูลที่ป้อน")
@@ -300,7 +307,7 @@ if predict_button:
                 st.pyplot(fig)
     else:
         st.error(
-            "❌ ไม่สามารถทำนายผลได้เนื่องจากยังไม่มีไฟล์โมเดลในโฟลเดอร์ 'model_files/'"
+            "❌ ไม่สามารถทำนายผลได้เนื่องจากยังไม่มีไฟล์โมเดลในโฟลเดอร์ 'model_files/decision_tree/'"
         )
 
 # ===== Footer =====

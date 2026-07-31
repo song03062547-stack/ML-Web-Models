@@ -87,9 +87,9 @@ st.markdown(
 @st.cache_resource
 def load_model():
     try:
-        model_path = Path("model_files/rf_model.pkl")
-        scaler_path = Path("model_files/scaler.pkl")
-        features_path = Path("model_files/feature_names.pkl")
+        model_path = Path("model_files/housing/rf_model.pkl")
+        scaler_path = Path("model_files/housing/scaler.pkl")
+        features_path = Path("model_files/housing/feature_names.pkl")
 
         if not all([
             model_path.exists(),

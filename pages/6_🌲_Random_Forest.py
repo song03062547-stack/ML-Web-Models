@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-MODEL_PATH = Path(__file__).with_name("random_forest_model.pkl")
+MODEL_PATH = Path("model_files/student/random_forest_model.pkl")
 
 st.set_page_config(
     page_title="Random Forest Model", page_icon="🌲", layout="wide"
