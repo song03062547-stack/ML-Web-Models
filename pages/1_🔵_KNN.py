@@ -12,11 +12,16 @@ st.set_page_config(page_title="KNN Model", page_icon="🔵", layout="wide")
 
 # 2. Sidebar ข้อมูลผู้พัฒนา
 with st.sidebar:
+    from pathlib import Path
+    
+    # คำนวณหาตำแหน่งโฟลเดอร์หลัก (ML-Web-Models) จากตำแหน่งไฟล์ปัจจุบัน
+    base_dir = Path(__file__).resolve().parent.parent # ถอยหลังจาก pages/ ออกมา 1 ชั้น
+    
     profile_image_path = None
-    # เช็คทั้งแบบปกติและแบบถอยหลังกลับไป 1 ชั้นเพื่อหาโฟลเดอร์ assets
-    for path_to_check in ["assets/profile.jpg", "../assets/profile.jpg", "assets/profile.png", "../assets/profile.png"]:
-        if os.path.exists(path_to_check):
-            profile_image_path = path_to_check
+    for ext in ["jpg", "jpeg", "png", "JPG", "PNG"]:
+        img_path = base_dir / "assets" / f"profile.{ext}"
+        if img_path.exists():
+            profile_image_path = str(img_path)
             break
             
     if profile_image_path:

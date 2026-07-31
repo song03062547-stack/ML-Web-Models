@@ -19,29 +19,18 @@ st.set_page_config(
 
 # --- Sidebar ข้อมูลผู้พัฒนา ---
 with st.sidebar:
-    # ✅ ใช้โค้ดชุดนี้แทน จะช่วยสแกนหาโฟลเดอร์ assets ให้เจอชัวร์ๆ
     from pathlib import Path
     
+    # คำนวณหาตำแหน่งโฟลเดอร์หลัก (ML-Web-Models) จากตำแหน่งไฟล์ปัจจุบัน
+    base_dir = Path(__file__).resolve().parent.parent # ถอยหลังจาก pages/ ออกมา 1 ชั้น
+    
     profile_image_path = None
-    paths_to_try = [
-        Path("assets/profile.jpg"),
-        Path("assets/profile.png"),
-        Path("../assets/profile.jpg"),
-        Path("../assets/profile.png"),
-    ]
-    if "__file__" in locals():
-        paths_to_try.extend([
-            Path(__file__).parent / "assets/profile.jpg",
-            Path(__file__).parent / "assets/profile.png",
-            Path(__file__).parent.parent / "assets/profile.jpg",
-            Path(__file__).parent.parent / "assets/profile.png",
-        ])
-
-    for p in paths_to_try:
-        if p.exists():
-            profile_image_path = str(p)
+    for ext in ["jpg", "jpeg", "png", "JPG", "PNG"]:
+        img_path = base_dir / "assets" / f"profile.{ext}"
+        if img_path.exists():
+            profile_image_path = str(img_path)
             break
-
+            
     if profile_image_path:
         st.image(profile_image_path, width=130)
     else:
