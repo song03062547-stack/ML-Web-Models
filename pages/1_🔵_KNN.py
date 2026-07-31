@@ -12,11 +12,23 @@ st.set_page_config(page_title="KNN Model", page_icon="🔵", layout="wide")
 
 # 2. Sidebar ข้อมูลผู้พัฒนา
 with st.sidebar:
-    if os.path.exists("assets/profile.jpg"):
-        st.image("assets/profile.jpg", width=130)
+    # ค้นหารูปโปรไฟล์จากนามสกุลไฟล์ต่างๆ ในโฟลเดอร์ assets
+    profile_image_path = None
+    for ext in ["jpg", "jpeg", "png", "JPG", "PNG"]:
+        path_to_check = f"assets/profile.{ext}"
+        if os.path.exists(path_to_check):
+            profile_image_path = path_to_check
+            break
+            
+    if profile_image_path:
+        st.image(profile_image_path, width=130)
+    else:
+        st.warning("⚠️ ไม่พบรูปโปรไฟล์ใน assets/")
+
     st.markdown("### 👨‍💻 ข้อมูลผู้พัฒนา")
     st.markdown("""
     **ชื่อ-นามสกุล:** นายปฐมพงศ์ ชัยสรรค์ 
+    **ชื่อเล่น:** ซองค์
     **รหัสนักศึกษา:** 664245039  
     **หมู่เรียน:** 66/44
     """)

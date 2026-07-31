@@ -10,11 +10,23 @@ st.set_page_config(page_title="SVM Model", page_icon="📈", layout="wide")
 
 # Sidebar ข้อมูลผู้พัฒนา (แก้ไขข้อมูลให้ถูกต้อง)
 with st.sidebar:
-    if os.path.exists("assets/profile.jpg"):
-        st.image("assets/profile.jpg", width=130)
+    # ค้นหารูปโปรไฟล์จากนามสกุลไฟล์ต่างๆ ในโฟลเดอร์ assets
+    profile_image_path = None
+    for ext in ["jpg", "jpeg", "png", "JPG", "PNG"]:
+        path_to_check = f"assets/profile.{ext}"
+        if os.path.exists(path_to_check):
+            profile_image_path = path_to_check
+            break
+            
+    if profile_image_path:
+        st.image(profile_image_path, width=130)
+    else:
+        st.warning("⚠️ ไม่พบรูปโปรไฟล์ใน assets/")
+
     st.markdown("### 👨‍💻 ข้อมูลผู้พัฒนา")
     st.markdown("""
     **ชื่อ-นามสกุล:** นายปฐมพงศ์ ชัยสรรค์ 
+    **ชื่อเล่น:** ซองค์
     **รหัสนักศึกษา:** 664245039  
     **หมู่เรียน:** 66/44 
     """)
@@ -69,17 +81,17 @@ st.markdown(
 )
 
 
-# 2. โหลดโมเดลที่บันทึกไว้ (แก้ path ชี้ไปที่โฟลเดอร์ models/)
+# 2. โหลดโมเดลที่บันทึกไว้ (แก้ path ชี้ไปที่โฟลเดอร์ model_files/)
 @st.cache_resource
 def load_model():
-    model_path = "models/gld_svm_model.pkl"
+    model_path = "model_files/gld_svm_model.pkl"
     if os.path.exists(model_path):
         with open(model_path, "rb") as f:
             data = pickle.load(f)
         return data
     else:
-        # ลองค้นหาชื่อไฟล์สั้น กรณีวางไว้นอกโฟลเดอร์
-        alt_path = "models/svm_model.pkl"
+        # ลองค้นหาชื่อไฟล์สั้น กรณีใช้ชื่อนี้ในโฟลเดอร์ model_files/
+        alt_path = "model_files/svm_model.pkl"
         if os.path.exists(alt_path):
             with open(alt_path, "rb") as f:
                 data = pickle.load(f)
@@ -127,7 +139,7 @@ st.markdown(
 
 if model is None:
     st.warning(
-        "⚠️ ไม่พบไฟล์โมเดลในโฟลเดอร์ 'models/' (แสดงผลหน้าจอแบบจำลองเพื่อทดสอบ UI)"
+        "⚠️ ไม่พบไฟล์โมเดลในโฟลเดอร์ 'model_files/' (แสดงผลหน้าจอแบบจำลองเพื่อทดสอบ UI)"
     )
 
 # แบ่งโครงสร้างหน้าจอหลักออกเป็น 2 ฝั่ง (ฝั่งกรอกข้อมูล 60% : ฝั่งแสดงผล 40%)

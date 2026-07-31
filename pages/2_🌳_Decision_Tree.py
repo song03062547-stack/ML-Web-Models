@@ -16,14 +16,25 @@ st.set_page_config(page_title="Decision Tree Model", page_icon="🌳", layout="w
 
 # ===== 2. Sidebar (รวมข้อมูลผู้พัฒนา + ข้อมูลโมเดลไว้ที่เดียว) =====
 with st.sidebar:
-    if os.path.exists("assets/profile.jpg"):
-        st.image("assets/profile.jpg", width=130)
+    # ค้นหารูปโปรไฟล์จากนามสกุลไฟล์ต่างๆ ในโฟลเดอร์ assets
+    profile_image_path = None
+    for ext in ["jpg", "jpeg", "png", "JPG", "PNG"]:
+        path_to_check = f"assets/profile.{ext}"
+        if os.path.exists(path_to_check):
+            profile_image_path = path_to_check
+            break
+            
+    if profile_image_path:
+        st.image(profile_image_path, width=130)
+    else:
+        st.warning("⚠️ ไม่พบรูปโปรไฟล์ใน assets/")
 
     st.markdown("### 👨‍💻 ข้อมูลผู้พัฒนา")
     st.markdown("""
     **ชื่อ-นามสกุล:** นายปฐมพงศ์ ชัยสรรค์ 
+    **ชื่อเล่น:** ซองค์
     **รหัสนักศึกษา:** 664245039  
-    **หมู่เรียน:** 66/44 
+    **หมู่เรียน:** 66/44
     """)
     st.divider()
 
@@ -112,14 +123,14 @@ st.markdown(
 def load_model():
     """โหลดโมเดลและ scaler จากไฟล์"""
     try:
-        # ดึงจากโฟลเดอร์ models/
-        model = joblib.load("models/dt_model.pkl")
-        scaler = joblib.load("models/scaler.pkl")
-        features = joblib.load("models/feature_names.pkl")
+        # แก้ไข Path ชี้ไปยังโฟลเดอร์ model_files/
+        model = joblib.load("model_files/dt_model.pkl")
+        scaler = joblib.load("model_files/scaler.pkl")
+        features = joblib.load("model_files/feature_names.pkl")
         return model, scaler, features
     except FileNotFoundError:
         st.warning(
-            "⚠️ ไม่พบไฟล์โมเดลในโฟลเดอร์ 'models/' (กำลังใช้ข้อมูลตัวอย่างเพื่อแสดงผล UI)"
+            "⚠️ ไม่พบไฟล์โมเดลในโฟลเดอร์ 'model_files/' (กำลังใช้ข้อมูลตัวอย่างเพื่อแสดงผล UI)"
         )
         default_features = [
             "alcohol",
@@ -289,7 +300,7 @@ if predict_button:
                 st.pyplot(fig)
     else:
         st.error(
-            "❌ ไม่สามารถทำนายผลได้เนื่องจากยังไม่มีไฟล์โมเดลในโฟลเดอร์ 'models/'"
+            "❌ ไม่สามารถทำนายผลได้เนื่องจากยังไม่มีไฟล์โมเดลในโฟลเดอร์ 'model_files/'"
         )
 
 # ===== Footer =====

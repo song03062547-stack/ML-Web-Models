@@ -17,20 +17,38 @@ st.set_page_config(
     page_title="Random Forest Model", page_icon="🌲", layout="wide"
 )
 
+# --- Sidebar ข้อมูลผู้พัฒนา ---
 with st.sidebar:
-    if os.path.exists("assets/profile.jpg"):
-        st.image("assets/profile.jpg", width=130)
+    # ค้นหารูปโปรไฟล์จากนามสกุลไฟล์ต่างๆ ในโฟลเดอร์ assets
+    profile_image_path = None
+    for ext in ["jpg", "jpeg", "png", "JPG", "PNG"]:
+        path_to_check = f"assets/profile.{ext}"
+        if os.path.exists(path_to_check):
+            profile_image_path = path_to_check
+            break
+
+    if profile_image_path:
+        st.image(profile_image_path, width=130)
+    else:
+        st.warning("⚠️ ไม่พบรูปโปรไฟล์ใน assets/")
+
     st.markdown("### 👨‍💻 ข้อมูลผู้พัฒนา")
     st.markdown("""
     **ชื่อ-นามสกุล:** นายปฐมพงศ์ ชัยสรรค์ 
+    **ชื่อเล่น:** ซองค์
     **รหัสนักศึกษา:** 664245039  
     **หมู่เรียน:** 66/44 
     """)
     st.divider()
 
+    st.header("ข้อมูลโมเดล")
+    st.write("อัลกอริทึม: **Random Forest**")
+    st.write("ประเภทงาน: **Classification**")
+
 st.title("🌲 Ensemble (Random Forest) Model")
 st.write("ระบบทำนายผลด้วย Random Forest Model")
 
+# --- Custom CSS ---
 st.markdown(
     """
     <style>
@@ -107,24 +125,8 @@ except Exception as error:
     st.stop()
 
 
-st.markdown(
-    """
-    <div class="hero">
-        <h1>🌱 Random Forest Predictor</h1>
-        <p>
-            เว็บตัวอย่างสำหรับทำนายแนวโน้มการสอบผ่าน
-            ด้วย Ensemble Learning และ Data Preprocessing Pipeline
-        </p>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
+# อัปเดต Metric ใน Sidebar หลังโหลด Metadata โมเดลสำเร็จ
 with st.sidebar:
-    st.header("ข้อมูลโมเดล")
-    st.write("อัลกอริทึม: **Random Forest**")
-    st.write("ประเภทงาน: **Classification**")
-
     model_metrics = metadata.get("metrics", {})
     st.metric(
         "Test Accuracy",
@@ -142,6 +144,20 @@ with st.sidebar:
     )
 
 
+st.markdown(
+    """
+    <div class="hero">
+        <h1>🌱 Random Forest Predictor</h1>
+        <p>
+            เว็บตัวอย่างสำหรับทำนายแนวโน้มการสอบผ่าน
+            ด้วย Ensemble Learning และ Data Preprocessing Pipeline
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+
 single_tab, batch_tab, process_tab = st.tabs([
     "ทำนายรายบุคคล",
     "ทำนายจาก CSV",
@@ -149,6 +165,7 @@ single_tab, batch_tab, process_tab = st.tabs([
 ])
 
 
+# --- Tab 1: Single Prediction ---
 with single_tab:
     st.subheader("กรอกข้อมูลสำหรับการทำนาย")
 
@@ -262,6 +279,7 @@ with single_tab:
         st.markdown("</div>", unsafe_allow_html=True)
 
 
+# --- Tab 2: Batch Prediction ---
 with batch_tab:
     st.subheader("ทำนายข้อมูลหลายรายการ")
 
@@ -345,6 +363,7 @@ with batch_tab:
             st.error(f"ไม่สามารถประมวลผลไฟล์ได้: {error}")
 
 
+# --- Tab 3: Model Process ---
 with process_tab:
     st.subheader("กระบวนการทำงานของระบบ")
 
