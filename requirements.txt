@@ -3,6 +3,6 @@ pandas
 numpy
 scikit-learn
 joblib
-plotly
 matplotlib
 seaborn
+Pillow
